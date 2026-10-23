@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#16202e">
+<title>Reporte de Terreno</title>
+<style>
+:root{--bg:#eef2f6;--card:#fff;--in:#f3f6f9;--bd:#cfd8e2;--tx:#14202e;--mu:#5b6b7d;--ac:#0e9f6e;--acx:#fff;--dg:#c0392b;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#0e1520;--card:#1b2636;--in:#060a12;--bd:#2c3c52;--tx:#f1f5f9;--mu:#93a4b8;--ac:#13b981;--acx:#04150e;--dg:#ff7a6b}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#0e1520;--card:#1b2636;--in:#060a12;--bd:#2c3c52;--tx:#f1f5f9;--mu:#93a4b8;--ac:#13b981;--acx:#04150e;--dg:#ff7a6b}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding-bottom:96px}
+header{padding:18px 16px 8px;max-width:560px;margin:0 auto}
+h1{font-size:22px;margin:0}
+header p{margin:2px 0 10px;color:var(--mu);font-size:14px}
+main{max-width:560px;margin:0 auto;padding:0 12px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:14px;margin-bottom:14px}
+.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.top b{font-size:17px}
+.x{background:none;border:0;color:var(--dg);font-size:14px;padding:6px 8px}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px}
+.seg button{padding:10px;border-radius:10px;border:1px solid var(--bd);background:var(--in);color:var(--mu);font-size:15px;font-weight:600}
+.seg button.on{background:var(--ac);color:var(--acx);border-color:var(--ac)}
+.row{display:flex;align-items:center;gap:6px;margin-bottom:12px;font-weight:700}
+select,input{font:inherit;color:var(--tx);background:var(--in);border:1px solid var(--bd);border-radius:10px;padding:10px;min-width:0;width:100%}
+select{font-weight:700;color:var(--ac);width:auto;padding:10px 6px}
+input:focus,select:focus{outline:2px solid var(--ac);outline-offset:0}
+.row input{flex:1;font-weight:700}
+.sub{color:var(--mu);font-size:14px;margin:4px 0 6px}
+.cab{background:var(--bg);border-radius:12px;padding:8px 10px 10px;margin-bottom:8px}
+.cab>span{font-weight:700;font-size:14px}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}
+.m{position:relative}.m i{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:11px;font-style:normal;color:var(--mu);pointer-events:none}
+.m input{padding-right:42px}
+.add{width:100%;padding:13px;border-radius:12px;border:2px dashed var(--bd);background:none;color:var(--tx);font-size:15px;font-weight:600}
+.add:disabled{opacity:.4}
+.tel{display:flex;gap:8px;align-items:center;margin-bottom:12px}
+.tel label{font-size:13px;color:var(--mu);white-space:nowrap}
+footer{position:fixed;left:0;right:0;bottom:0;padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));background:var(--bg);border-top:1px solid var(--bd)}
+footer div{max-width:560px;margin:0 auto;display:flex;gap:8px}
+.send{flex:1;padding:15px;border:0;border-radius:14px;background:var(--ac);color:var(--acx);font-size:17px;font-weight:800}
+.rst{padding:0 16px;border-radius:14px;border:1px solid var(--bd);background:var(--card);color:var(--tx);font-size:18px}
+</style>
+</head>
+<body>
+<header><h1>Reporte de Terreno</h1><p>Envío directo a WhatsApp</p></header>
+<main>
+<section class="card"><div class="seg" id="tipo"><button data-t="TENDIDO">Tendido</button><button data-t="RETIRADO">Retirado</button></div><div class="tel" style="margin:0"><label for="fecha">Fecha del trabajo</label><input id="fecha" type="date"></div></section>
+<div class="tel"><label for="tel">WhatsApp destino</label><input id="tel" inputmode="tel" placeholder="Opcional, ej. 56912345678"></div>
+<div id="list"></div>
+<button class="add" id="add">+ Agregar tramo</button>
+</main>
+<footer><div><button class="rst" id="rst" title="Limpiar todo" aria-label="Limpiar todo">↻</button><button class="send" id="send">ENVIAR POR WHATSAPP</button></div></footer>
+<script>
+var CABLES=["VF","VC","ST","SH","SI","CO2","RAF","RAC","RESPALDO","UTP"],MAX=10,KEY="rt_estado_v1";
+var S={tel:"",tipo:"TENDIDO",t:[]},F=hoy();
+function hoy(){var d=new Date(),p=function(n){return(n<10?"0":"")+n};return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate())}
+function fecha(){var p=F.split("-");return p[2]+"/"+p[1]+"/"+p[0]}
+function nuevo(){return{n:"5",tb:"D",tab:"",c:{}}}
+function load(){try{var r=localStorage.getItem(KEY);if(r){var o=JSON.parse(r);if(o&&o.t&&o.t.length){S=o;if(!S.tipo)S.tipo="TENDIDO"}}}catch(e){}if(!S.t.length)S.t=[nuevo()]}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;")}
+function render(){
+  var h="";
+  S.t.forEach(function(t,i){
+    var nopts="";for(var n=-2;n<=11;n++)nopts+='<option'+(String(n)===t.n?' selected':'')+'>'+n+'</option>';
+    var tbopts=["A","B","C","D"].map(function(l){return'<option'+(l===t.tb?' selected':'')+'>'+l+'</option>'}).join("");
+    var cab=CABLES.map(function(k){var c=t.c[k]||{};
+      return'<div class="cab"><span>'+k+'</span><div class="pair"><input data-i="'+i+'" data-k="'+k+'" data-f="c" inputmode="numeric" placeholder="Código" value="'+esc(c.c||"")+'"><div class="m"><input data-i="'+i+'" data-k="'+k+'" data-f="m" inputmode="decimal" placeholder="Metros" value="'+esc(c.m||"")+'"><i>MTS</i></div></div></div>'}).join("");
+    h+='<section class="card"><div class="top"><b>Tramo '+(i+1)+'</b>'+(S.t.length>1?'<button class="x" data-del="'+i+'">Quitar</button>':'')+'</div>'+
+    ''+
+    '<div class="row">TCC- <select data-i="'+i+'" data-f="n" aria-label="Número TCC">'+nopts+'</select> -TB- <select data-i="'+i+'" data-f="tb" aria-label="Letra TB">'+tbopts+'</select><input data-i="'+i+'" data-f="tab" inputmode="decimal" placeholder="Tablero" value="'+esc(t.tab)+'"></div>'+
+    '<div class="sub">Metros y códigos por cable</div>'+cab+'</section>';
+  });
+  document.getElementById("list").innerHTML=h;
+  document.getElementById("add").disabled=S.t.length>=MAX;
+  document.getElementById("add").textContent=S.t.length>=MAX?"Máximo 10 tramos":"+ Agregar tramo ("+S.t.length+"/"+MAX+")";
+  document.getElementById("tel").value=S.tel||"";
+  Array.prototype.forEach.call(document.querySelectorAll("#tipo button"),function(b){b.className=b.dataset.t===S.tipo?"on":""});
+  document.getElementById("fecha").value=F;
+}
+function texto(){
+  return "REPORTE DE TRABAJO\nTIPO: "+S.tipo+"\nFECHA: "+fecha()+"\n\n"+S.t.map(function(t){
+    var L=[];
+    L.push("TCC- ("+t.n+")-TB-"+t.tb+" "+t.tab.trim());
+    CABLES.forEach(function(k){var c=t.c[k];if(c&&(c.m||"").trim()){L.push(k+" "+(c.c||"").trim()+" , "+c.m.trim()+" MTS")}});
+    return L.join("\n");
+  }).join("\n\n");
+}
+document.getElementById("list").addEventListener("input",function(e){
+  var el=e.target,i=el.dataset.i;if(i===undefined)return;var t=S.t[i];
+  if(el.dataset.k){t.c[el.dataset.k]=t.c[el.dataset.k]||{};t.c[el.dataset.k][el.dataset.f]=el.value}
+  else t[el.dataset.f]=el.value;
+  save();
+});
+document.getElementById("list").addEventListener("click",function(e){
+  var b=e.target.closest("button");if(!b)return;
+  if(b.dataset.tipo){S.t[b.dataset.i].tipo=b.dataset.tipo;save();render()}
+  else if(b.dataset.del!==undefined){S.t.splice(+b.dataset.del,1);save();render()}
+});
+document.getElementById("add").onclick=function(){if(S.t.length<MAX){S.t.push(nuevo());save();render();window.scrollTo(0,document.body.scrollHeight)}};
+document.getElementById("tipo").onclick=function(e){var b=e.target.closest("button");if(b){S.tipo=b.dataset.t;save();render()}};
+document.getElementById("fecha").onchange=function(e){F=e.target.value||hoy()};
+document.getElementById("tel").oninput=function(e){S.tel=e.target.value;save()};
+document.getElementById("rst").onclick=function(){if(confirm("¿Limpiar todos los tramos?")){S.t=[nuevo()];save();render()}};
+function copiar(txt){
+  var pedir=function(){prompt("Copia el texto y pégalo en WhatsApp:",txt)};
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(function(){alert("Reporte copiado. Pégalo en WhatsApp.")},pedir)}else pedir();
+}
+document.getElementById("send").onclick=function(){
+  var txt=texto(),num=(S.tel||"").replace(/\D/g,"");
+  if(location.protocol==="file:"){location.href="https://wa.me/"+num+"?text="+encodeURIComponent(txt);return}
+  if(navigator.share){navigator.share({text:txt}).catch(function(e){if(!e||e.name!=="AbortError")copiar(txt)});return}
+  copiar(txt);
+};
+load();render();
+</script>
+</body>
+</html>
