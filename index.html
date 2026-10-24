@@ -52,7 +52,7 @@ footer div{max-width:560px;margin:0 auto;display:flex;gap:8px}
 <body>
 <header><h1>Reporte de Terreno</h1><p>Envío directo a WhatsApp</p></header>
 <main>
-<section class="card"><div class="seg" id="tipo"><button data-t="TENDIDO">Tendido</button><button data-t="RETIRADO">Retirado</button></div><div class="tel" style="margin:0"><label for="fecha">Fecha del trabajo</label><input id="fecha" type="date"></div></section>
+<section class="card"><div class="seg" id="tipo"><button data-t="TENDIDO">Tendido</button><button data-t="RETIRADO">Retiro</button></div><div class="tel" style="margin:0"><label for="fecha">Fecha del trabajo</label><input id="fecha" type="date"></div></section>
 <div class="tel"><label for="tel">WhatsApp destino</label><input id="tel" inputmode="tel" placeholder="Opcional, ej. 56912345678"></div>
 <div id="list"></div>
 <button class="add" id="add">+ Agregar tramo</button>
@@ -87,7 +87,7 @@ function render(){
   document.getElementById("fecha").value=F;
 }
 function texto(){
-  return "*REPORTE DE TRABAJO*\n*TIPO: "+(S.tipo==="TENDIDO"?"🟢 TENDIDO":"🔴 RETIRADO")+"*\n*FECHA: "+fecha()+"*\n\n"+S.t.map(function(t){
+  return "*✱ REPORTE DE TRABAJO ✱*\n*TIPO: "+(S.tipo==="TENDIDO"?"⬆️ TENDIDO":"⬇️ RETIRO")+"*\n*FECHA: "+fecha()+"*\n\n"+S.t.map(function(t){
     var L=[];
     L.push("TCC- ("+t.n+")-TB-"+t.tb+" "+t.tab.trim());
     CABLES.forEach(function(k){var c=t.c[k];if(c&&(c.m||"").trim()){L.push(k+" "+(c.c||"").trim()+" , "+c.m.trim()+" MTS")}});
