@@ -84,7 +84,7 @@ function render(){
   document.getElementById("fecha").value=F;
 }
 function texto(){
-  return "*✱ LEVANTAMIENTO DE TABLEROS ✱*\n*FECHA: "+fecha()+"*\n\n"+S.t.map(function(t){
+  return "✱ LEVANTAMIENTO DE TABLEROS ✱\nFECHA: "+fecha()+"\n\n"+S.t.map(function(t){
     var L=["TCC-("+t.n+")-TB-"+t.tb+" "+t.tab.trim()+((t.obs||"").trim()?" ("+t.obs.trim()+")":"")];
     ITEMS.forEach(function(it,j){var r=t.r[j];if(r&&r.e){
       L.push("• "+it[0]+((r.c||"").trim()?" "+r.c.trim():"")+": "+r.e+((r.o||"").trim()?" ("+r.o.trim()+")":""))}});
